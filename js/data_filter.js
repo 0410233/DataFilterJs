@@ -8,14 +8,19 @@ DataFilter.prototype = {
   constructor: DataFilter,
 
   // 添加一个过滤选项
-  addFilterItem: function(filter, id, label, group) {
-    if (!filter || !(filter instanceof BaseFilter)) {
-      console.error('请指定过滤器');
+  addFilterItem: function(id, label, group, filter) {
+    if (!id || !label) {
+      console.error('请指定过滤器的 id 和 label');
       return;
     }
 
-    if (!id || !label) {
-      console.error('请指定过滤器的 id 和 label');
+    if (group && (group instanceof BaseFilter)) {
+      filter = group;
+      group = null;
+    }
+
+    if (!filter || !(filter instanceof BaseFilter)) {
+      console.error('请指定过滤器');
       return;
     }
 
