@@ -41,3 +41,11 @@ function toNumber(val) {
   val = Number(val);
   return isNaN(val) ? 0 : val;
 }
+
+function isInstance(obj, cls) {
+  return obj instanceof cls;
+}
+
+function define(obj, prop, descriptor) {
+  Object.defineProperty(obj, prop, descriptor);
+}

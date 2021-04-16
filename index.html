@@ -7,14 +7,80 @@
   <title>Document</title>
 </head>
 <body>
-  <div id="app"></div>
+  <div class="region">
+    <div class="stage">
+      <div class="data-component">
+        <div class="data-filter" id="data_filter">
+          <div class="filters__container">
+            <div class="filters__left">
+              <select v-model="manufacturers.selected" @change="handleFilterChange">
+                <option value="">-Select-</option>
+                <option v-for="(total,value) in manufacturers.all" :key="value" :value="value">{{ value+' ('+total+')' }}</option>
+              </select>
+              <div :class="{'filters__reset':true, 'is-filtered':isFiltered}" @click.stop="reset"><i class="iconfont iconhuishou"></i>RESET ALL</div>
+            </div>
+          </div>
+        </div>
+        <div class="data-table" id="data_table">
+          <div class="table-wrapper">
+            <table class="jc-table">
+              <thead>
+                <tr>
+                  <th @click.stop="sort" data-prop="manufacturer"><span class="jc-table__cell">Manufacturer<i class="sort-caret"></i></span></th>
+                  <th @click.stop="sort" data-prop="manufacture_oe"><span class="jc-table__cell">Manufacturer #<i class="sort-caret"></i></span></th>
+                  <th @click.stop="sort" data-prop="inborn_filter_oe"><span class="jc-table__cell">Inborn Filter #<i class="sort-caret"></i></span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="record in currentPageRecords">
+                  <td>{{ record.manufacturer }}</td>
+                  <td>{{ record.manufacture_oe }}</td>
+                  <td>{{ record.inborn_filter_oe }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="records.length"
+            :page-size="pagination.perPage"
+            @current-change="handleCurrentPageChange">
+          </el-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/vendor/underscore.min.js"></script>
   <script src="./js/vendor/axios/dist/axios.min.js"></script>
   <script src="./js/vendor/vue/dist/vue.min.js"></script>
   <script src="./js/vendor/element/lib/index.js"></script>
   <script src="./js/utils.js"></script>
-  <script src="./js/filters.js"></script>
+  <script src="./js/validators.js"></script>
+  <script src="./js/validator_group.js"></script>
   <script src="./js/data_filter.js"></script>
+  <script src="./js/records.js"></script>
   <script>
+    const groups = {
+      // 定义在属性 manufacturer 上的值验证器组
+      'manufacturer': {
+        group: ValidatorGroup.makeValueGroup('manufacturer', records),
+        label: 'Manufacturer',
+      },
+
+      // 定义在属性 category 上的值验证器组
+      'category': {
+        group: ValidatorGroup.makeValueGroup('category', records),
+        label: 'Category',
+      },
+
+      // 定义在 'manufacturer', 'manufacture_oe' 和 'inborn_filter_oe' 三个属性上的检索验证器组
+      'search': {
+        group: ValidatorGroup.makeContainsGroup('search', ['manufacturer','manufacture_oe','inborn_filter_oe']),
+        label: 'Search',
+      },
+    };
   </script>
 </body>
 </html>
