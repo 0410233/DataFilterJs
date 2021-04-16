@@ -1,157 +1,264 @@
+;(function(global) {
 
-function BaseValidator(prop) {
-  // 属性
-  Object.defineProperty(this, 'prop', {
-    value: prop,
-  })
+  let validatorIndex = 1;
+  let groupIndex = 1;
 
-  // 格式转换器
-  this.caster = function(value) {return value};
+  const define = Object.defineProperty;
 
-  // 值获取器
-  this.resolver = function(record) {return record[this._prop]};
+  function BaseValidator(prop) {
+    let _group = null;
+    let _name = '';
 
-  // 值验证器
-  this.validator = function(value) {return false};
-}
+    // 所属分组
+    define(this, 'group', {
+      set: function(newGroup) {
+        if (newGroup && newGroup instanceof ValidatorGroup) {
+          _group = newGroup;
+          _name = _group.name + '_validator_' + validatorIndex++;
+        }
+      },
+      get: function() {
+        return _group;
+      },
+    });
 
-BaseValidator.prototype = {
-  constructor: BaseValidator,
+    // name
+    define(this, 'name', {
+      get: function() {
+        return _name;
+      }
+    });
 
-  setCaster: function(caster) {
-    if (caster instanceof Function) {
-      this.caster = caster.bind(this);
-    }
-    return this;
-  },
+    // 属性
+    define(this, 'prop', {value: prop});
 
-  setResolver: function(resolver) {
-    if (resolver instanceof Function) {
-      this.resolver = resolver.bind(this);
-    }
-    return this;
-  },
-
-  setValidator: function(validator) {
-    if (validator instanceof Function) {
-      this.validator = validator.bind(this);
-    }
-    return this;
-  },
-
-  validate: function(record) {
-    const args = Array.prototype.slice.call(arguments);
-    args[0] = this.caster(this.valueResolver(record));
-    return !!this.valueValidator.apply(this, args);
-  },
-};
-
-// 值验证器，由指定的属性和值自动生成验证函数
-function ValueValidator(prop, value) {
-  BaseValidator.call(this, prop);
-
-  Object.defineProperty(this, 'value', {
-    value: this.caster(value),
-  })
-
-  this.setValidator(function(value) {
-    return value === this._value;
-  });
-}
-ValueValidator.classExtend(BaseValidator, {});
-
-// 范围验证器，由指定的属性和范围自动生成验证函数
-function RangeValidator(prop, min, max) {
-  BaseValidator.call(this, prop);
-
-  Object.defineProperty(this, 'min', {
-    value: this.caster(min),
-  })
-
-  Object.defineProperty(this, 'max', {
-    value: this.caster(max),
-  })
-
-  this.setValidator(function(value) {
-    return value >= this.min && value <= this.max;
-  });
-}
-RangeValidator.classExtend(BaseValidator, {});
-
-// 枚举值验证器，由指定的属性和枚举值自动生成验证函数
-function EnumValidator(prop, items) {
-  BaseValidator.call(this, prop);
-
-  Object.defineProperty(this, 'items', {
-    value: items || [],
-  })
-
-  this.setValidator(function(value) {
-    return this.items.indexOf(value) >= 0;
-  });
-}
-EnumValidator.classExtend(BaseValidator, {});
-
-// 包含验证器，由指定的属性和枚举值自动生成验证函数
-function ContainsValidator(prop) {
-  BaseValidator.call(this, prop);
-
-  this.setValidator(function(value, keywords) {
-    if (! this.options.caseSensitive) {
-      value = value.toLowerCase();
-      keywords = keywords.toLowerCase();
-    }
-    return value.indexOf(keywords) >= 0;
-  });
-}
-ContainsValidator.classExtend(BaseValidator, {});
-
-// BaseValidator 的包装对象
-function Validator(validator, id, label, total) {
-  if (!validator || !(validator instanceof BaseValidator)) {
-    throw '请指定过滤器';
-  }
-
-  if (!id) {
-    throw '请指定过滤器的 id';
-  }
-
-  if (!label) {
-    throw '请指定过滤器的 label';
-  }
-
-  this._validator = validator;
-  this._id = id;
-  this._label = label;
-  this._total = total || 0;
-  this._active = true;
-}
-
-Validator.prototype = {
-  constructor: Validator,
-
-  validate: function() {
-    return this._validator.validate.apply(this._validator, Array.prototype.slice.call(arguments));
-  },
-
-  deactive: function() {
-    this._active = false;
-    return this;
-  },
-
-  active: function() {
     this._active = true;
-    return this;
-  },
+    this._total = 0;
 
-  isActive: function() {
-    return this._active;
-  },
+    // 格式转换器
+    this.caster = function(value) {return value};
 
-  count: function(data) {
-    const validator = this._validator;
-    this._total = data.reduce(function(total, datum) {
-      return total + validator.validate(datum);
-    }, 0);
-  },
-};
+    // 值获取器
+    this.resolver = function(record) {return record[this.prop]};
+
+    // 值验证器
+    this.validator = function(value) {return false};
+  }
+
+  BaseValidator.prototype = {
+    constructor: BaseValidator,
+
+    setCaster: function(caster) {
+      if (caster instanceof Function) {
+        this.caster = caster.bind(this);
+      }
+      return this;
+    },
+
+    setResolver: function(resolver) {
+      if (resolver instanceof Function) {
+        this.resolver = resolver.bind(this);
+      }
+      return this;
+    },
+
+    setValidator: function(validator) {
+      if (validator instanceof Function) {
+        this.validator = validator.bind(this);
+      }
+      return this;
+    },
+
+    validate: function(record) {
+      const args = Array.prototype.slice.call(arguments);
+      args[0] = this.caster(this.resolver(record));
+      return !!this.validator.apply(this, args);
+    },
+
+    deactive: function() {
+      this._active = false;
+      return this;
+    },
+
+    active: function() {
+      this._active = true;
+      return this;
+    },
+
+    isActive: function() {
+      return !!this._active;
+    },
+
+    count: function(data) {
+      if (data) {
+        const validator = this;
+        return this._total = data.reduce(function(total, datum) {
+          return total + validator.validate(datum);
+        }, 0);
+      }
+      return this._total;
+    },
+  };
+
+  global.BaseValidator = BaseValidator;
+
+
+  // 值验证器，由指定的属性和值自动生成验证函数
+  function ValueValidator(prop, value) {
+    BaseValidator.call(this, prop);
+
+    define(this, 'value', {value: this.caster(value)})
+
+    this.setValidator(function(value) {
+      return value === this._value;
+    });
+  }
+  ValueValidator.classExtend(BaseValidator, {});
+
+  // 范围验证器，由指定的属性和范围自动生成验证函数
+  function RangeValidator(prop, min, max) {
+    BaseValidator.call(this, prop);
+
+    define(this, 'min', {value: this.caster(min)})
+
+    define(this, 'max', {value: this.caster(max)})
+
+    this.setValidator(function(value) {
+      return value >= this.min && value <= this.max;
+    });
+  }
+  RangeValidator.classExtend(BaseValidator, {});
+
+  global.RangeValidator = RangeValidator;
+
+
+  // 枚举值验证器，由指定的属性和枚举值自动生成验证函数
+  function EnumValidator(prop, items) {
+    BaseValidator.call(this, prop);
+
+    define(this, 'items', {value: items || []})
+
+    this.setValidator(function(value) {
+      return this.items.indexOf(value) >= 0;
+    });
+  }
+  EnumValidator.classExtend(BaseValidator, {});
+
+  // 包含验证器，由指定的属性和枚举值自动生成验证函数
+  function ContainsValidator(prop, caseSensitive) {
+    BaseValidator.call(this, prop);
+
+    define(this, 'caseSensitive', {value: !!caseSensitive})
+
+    this.setValidator(function(value, keywords) {
+      if (! this.caseSensitive) {
+        value = value.toLowerCase();
+        keywords = keywords.toLowerCase();
+      }
+      return value.indexOf(keywords) >= 0;
+    });
+  }
+  ContainsValidator.classExtend(BaseValidator, {});
+
+  global.ContainsValidator = ContainsValidator;
+
+
+  function ValidatorGroup(multiple) {
+    this.name = 'group_' + groupIndex++;
+    this.multiple = multiple === undefined ? true : !!multiple;
+
+    this._validators = [];
+  }
+
+  ValidatorGroup.prototype = {
+    constructor: ValidatorGroup,
+
+    // 添加一个过滤选项
+    add: function(validator) {
+      if (validator && validator instanceof BaseValidator) {
+        validator.group = this;
+        this._validators.push(validator);
+      }
+      return this;
+    },
+
+    // 获取验证器
+    all: function(filter) {
+      filter = filter && filter instanceof Function ? filter : null;
+      if (!filter) {
+        return this._validators.slice();
+      }
+
+      const validators = [];
+      this._validators.forEach(function(validator) {
+        if (filter.call(null, validator)) {
+          validators.push(validator);
+        }
+      });
+      return validators;
+    },
+
+    // 获取所有可用的验证器
+    allActive: function() {
+      const validators = [];
+      this._validators.forEach(function(validator) {
+        if (validator.isActive()) {
+          validators.push(validator);
+        }
+      });
+      return validators;
+    },
+
+    // 过滤数据
+    filter: function(data) {
+      return data.filter(this.validate);
+    },
+
+    validate: function(record) {
+      const validators = this._validators;
+      for (let i = 0; i < validators.length; i++) {
+        const validator = validators[i];
+        if (validator.isActive() && !validator.validate(record)) {
+          return false;
+        }
+      }
+      return true;
+    },
+
+    count: function(data) {
+      this._validators.forEach(function(validator) {
+        validator.count(data);
+      });
+      return this;
+    },
+  };
+
+  // 快速批量创建值验证器
+  ValidatorGroup.makeValueGroup = function(prop, data) {
+    const group = new ValidatorGroup();
+
+    for (const key in _.countBy(data, prop)) {
+      group.add(new ValueValidator(prop, key))
+    }
+
+    return group;
+  }
+
+  // 快速批量创建检索验证器
+  ValidatorGroup.makeContainsGroup = function() {
+    let props = Array.prototype.slice.call(arguments);
+    if (props.length == 1 && _.isArray(props[0])) {
+      props = props[0];
+    }
+
+    const group = new ValidatorGroup();
+    props.forEach(function(prop) {
+      group.add(new ContainsValidator(prop));
+    });
+
+    return group;
+  }
+
+  global.ValidatorGroup = ValidatorGroup;
+
+})(window);

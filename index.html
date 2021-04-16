@@ -58,7 +58,6 @@
   <script src="./js/vendor/element/lib/index.js"></script>
   <script src="./js/utils.js"></script>
   <script src="./js/validators.js"></script>
-  <script src="./js/validator_group.js"></script>
   <script src="./js/data_filter.js"></script>
   <script src="./js/records.js"></script>
   <script>
@@ -77,7 +76,7 @@
 
       // 定义在 'manufacturer', 'manufacture_oe' 和 'inborn_filter_oe' 三个属性上的检索验证器组
       'search': {
-        group: ValidatorGroup.makeContainsGroup('search', ['manufacturer','manufacture_oe','inborn_filter_oe']),
+        group: ValidatorGroup.makeContainsGroup(['manufacturer','manufacture_oe','inborn_filter_oe']),
         label: 'Search',
       },
     };
