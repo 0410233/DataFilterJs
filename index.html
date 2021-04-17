@@ -292,12 +292,19 @@
             return this;
           },
 
-          // 重置过滤器
+          // 重置筛选器
           reset: function() {
             this.selected.manufacturer = '';
             this.selected.category = [];
 
             this.keywords.search = '';
+
+            const groups = this.groups;
+            groupsSchema.forEach(function(schema) {
+              if (schema.type != 'contains') {
+                groups[schema.name].all().forEach(function(validator) { validator.deactivate() });
+              }
+            });
 
             this.$emit('after-filter', this.records.slice());
           },
