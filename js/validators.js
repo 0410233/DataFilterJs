@@ -214,6 +214,14 @@
       },
     });
 
+    defineProp(this, 'total', {
+      get: function() {
+        return this._validators.reduce(function(total, validator) {
+          return total + validator.total;
+        }, 0);
+      },
+    });
+
     this._validators = [];
   }
 
