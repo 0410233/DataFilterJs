@@ -303,10 +303,10 @@
   };
 
   // 批量创建值验证器
-  function makeValueValidatorsGroup(options) {
-    const group = new ValidatorGroup(options.multiple);
-    const prop = options.prop;
-    const data = Array.isArray(options.data) ? options.data : [];
+  function makeValueValidatorsGroup(meta) {
+    const group = new ValidatorGroup(meta.multiple);
+    const prop = meta.prop;
+    const data = Array.isArray(meta.data) ? meta.data : [];
 
     for (const key in countBy(data, prop)) {
       group.add(new ValueValidator(prop, key))
@@ -320,9 +320,9 @@
   }
 
   // 批量创建检索验证器
-  function makeContainsValidatorsGroup(options) {
-    const group = new ValidatorGroup(options.multiple);
-    const props = Array.isArray(options.prop) ? options.prop : [options.prop];
+  function makeContainsValidatorsGroup(meta) {
+    const group = new ValidatorGroup(meta.multiple);
+    const props = Array.isArray(meta.prop) ? meta.prop : [meta.prop];
 
     props.forEach(function(prop) {
       group.add(new ContainsValidator(prop));
@@ -331,14 +331,27 @@
     return group;
   }
 
-  ValidatorGroup.make = function(options) {
-    switch (options.type) {
+  // 批量创建基础验证器
+  function makeBaseValidatorsGroup(meta) {
+    const group = new ValidatorGroup(meta.multiple);
+
+    if (Array.isArray(meta.validators)) {
+      meta.validators.forEach(function(validator) {
+        group.add(validator);
+      });
+    }
+
+    return group;
+  }
+
+  ValidatorGroup.make = function(meta) {
+    switch (meta.type) {
       case 'value':
-        return makeValueValidatorsGroup(options);
-      case 'contains':
-        return makeContainsValidatorsGroup(options);
+        return makeValueValidatorsGroup(meta);
+      case 'search':
+        return makeContainsValidatorsGroup(meta);
       default:
-        return new ValidatorGroup();
+        return makeBaseValidatorsGroup(meta);
     }
   }
 

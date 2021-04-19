@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>搜索框</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="region">
+    <div class="stage">
+      <div class="data-panel">
+        <div class="data-filter" id="data_filter">
+          <div class="data-filter__group">
+            <p><b>Search:</b></p>
+            <input type="text" placeholder="Search..." v-model="values.oe_search" @input="handleFilterChange">
+          </div>
+        </div>
+        <div class="data-layout data-layout--table" id="data_layout">
+          <div class="table-wrapper">
+            <table class="jc-table">
+              <thead>
+                <tr>
+                  <th @click.stop="sortBy('manufacturer', $event)">
+                    <div class="data-layout__header-content">Manufacturer<i class="sorting-indicator"></i></div>
+                  </th>
+                  <th @click.stop="sortBy('manufacture_oe', $event)">
+                    <div class="data-layout__header-content">Manufacturer #<i class="sorting-indicator"></i></div>
+                  </th>
+                  <th @click.stop="sortBy('inborn_filter_oe', $event)">
+                    <div class="data-layout__header-content">Inborn Filter #<i class="sorting-indicator"></i></div>
+                  </th>
+                  <th @click.stop="sortBy('category', $event)">
+                    <div class="data-layout__header-content">Category<i class="sorting-indicator"></i></div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="record in currentPageRecords">
+                  <td><div class="data-layout__column-content" v-html="render(record, 'manufacturer')"></div></td>
+                  <td><div class="data-layout__column-content" v-html="render(record, 'manufacture_oe')"></div></td>
+                  <td><div class="data-layout__column-content" v-html="render(record, 'inborn_filter_oe')"></div></td>
+                  <td><div class="data-layout__column-content" v-html="render(record, 'category')"></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="records.length"
+            :page-size="pagination.perPage"
+            @current-change="handleCurrentPageChange">
+          </el-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/vendor/underscore.min.js"></script>
+  <script src="../js/vendor/jquery.min.js"></script>
+  <script src="../js/vendor/axios/dist/axios.min.js"></script>
+  <script src="../js/vendor/vue/dist/vue.min.js"></script>
+  <script src="../js/vendor/element/lib/index.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/validators.js"></script>
+  <script src="../js/data-panel.js"></script>
+  <script src="../js/records.js"></script>
+  <script>
+
+    /**
+     * 生成数据展示组件
+     */
+    const layout = DataPanel.newLayout({
+      // *必需* 目标元素
+      el: '#data_layout',
+    });
+
+    // 用来生成验证器组的元数据
+    const groups = [
+      { // 定义在 'manufacturer', 'manufacture_oe' 和 'inborn_filter_oe' 三个属性上的检索验证器组
+        name: 'oe_search',
+        type: 'search',
+        prop: ['manufacturer','manufacture_oe','inborn_filter_oe'],
+        multiple: true,
+      },
+    ];
+
+    /**
+     * 生成数据展示组件
+     */
+    const filter = DataPanel.newFilter({
+      // *必需* 目标元素
+      el: '#data_filter',
+
+      // *必需* 指定布局组件
+      layout: layout,
+
+      // *必需* 用来生成验证器组的元数据
+      groups: groups,
+    });
+
+    filter.init(records);
+  </script>
+</body>
+</html>

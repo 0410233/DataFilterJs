@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>综合：单选框 + 复选框 + 搜索 + 图片显示</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="region">
+    <div class="stage">
+      <div class="data-panel">
+        <div class="data-filter" id="data_filter">
+          <div class="data-filter__group" id="test">
+            <p><b>Manufacturer:</b></p>
+            <div class="data-filter__validator">
+              <input type="radio" v-model="values.manufacturer" value="" id="any" @change="handleValidatorChange('manufacturer')">
+              <label for="any">(any)</label>
+            </div>
+            <div class="data-filter__validator" v-for="v in groups.manufacturer.all()">
+              <input type="radio" v-model="values.manufacturer" :value="v.id" :id="v.id" @change="handleValidatorChange('manufacturer')">
+              <label :for="v.id">{{ v.value }} ({{ v.total }})</label>
+            </div>
+          </div>
+          <div class="data-filter__group">
+            <p><b>Category:</b></p>
+            <div class="data-filter__validator" v-for="v in groups.category.all()">
+              <input type="checkbox" v-model="values.category" :value="v.id" :id="v.id" @change="handleValidatorChange('category')">
+              <label :for="v.id">{{ v.value }} ({{ v.total }})</label>
+            </div>
+          </div>
+          <div class="data-filter__group">
+            <p><b>Search:</b></p>
+            <input type="text" placeholder="Search..." v-model="values.search" @input="handleFilterChange">
+          </div>
+        </div>
+        <div class="data-layout data-layout--table" id="data_layout">
+          <div class="table-wrapper">
+            <table class="jc-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th @click.stop="sortBy('manufacturer', $event)">
+                    <div class="data-layout__header-content">Manufacturer<i class="sorting-indicator"></i></div>
+                  </th>
+                  <th @click.stop="sortBy('manufacture_oe', $event)">
+                    <div class="data-layout__header-content">Manufacturer #<i class="sorting-indicator"></i></div>
+                  </th>
+                  <th @click.stop="sortBy('inborn_filter_oe', $event)">
+                    <div class="data-layout__header-content">Inborn Filter #<i class="sorting-indicator"></i></div>
+                  </th>
+                  <th @click.stop="sortBy('category', $event)">
+                    <div class="data-layout__header-content">Category<i class="sorting-indicator"></i></div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="record in currentPageRecords">
+                  <td><div class="data-layout__column-content" v-html="render(record, 'image')"></div></td>
+                  <td><div class="data-layout__column-content" v-html="render(record, 'manufacturer')"></div></td>
+                  <td><div class="data-layout__column-content" v-html="render(record, 'manufacture_oe')"></div></td>
+                  <td><div class="data-layout__column-content" v-html="render(record, 'inborn_filter_oe')"></div></td>
+                  <td><div class="data-layout__column-content" v-html="render(record, 'category')"></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="records.length"
+            :page-size="pagination.perPage"
+            @current-change="handleCurrentPageChange">
+          </el-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/vendor/underscore.min.js"></script>
+  <script src="../js/vendor/jquery.min.js"></script>
+  <script src="../js/vendor/axios/dist/axios.min.js"></script>
+  <script src="../js/vendor/vue/dist/vue.min.js"></script>
+  <script src="../js/vendor/element/lib/index.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/validators.js"></script>
+  <script src="../js/data-panel.js"></script>
+  <script src="../js/records.js"></script>
+  <script>
+
+    /**
+     * 生成数据展示组件
+     */
+    const layout = DataPanel.newLayout({
+      // *必需* 目标元素
+      el: '#data_layout',
+
+      // 指定列内容渲染函数
+      render: {
+        'image': function(value, record, prop) {
+          // 获取图片 alt
+          const alt = record['manufacturer']+' '+record['manufacture_oe']+' ('+record['inborn_filter_oe']+')';
+
+          // 生成并返回 html
+          return '<div data-aspect-ratio="4:3" class="image-wrapper">' +
+            '<div class="image"><img src="../images'+value+'" alt="'+alt+'"></div>' +
+            '</div>';
+        },
+      },
+
+      // // 初始化时，数据默认按那一列排序
+      // initialSortBy: 'manufacturer',
+
+      // // 排序图标的选择器
+      // sortingIndicatorSelector: '.sorting-indicator',
+
+      // // 升序时排序指示器添加的类
+      // descendingClass: 'descending',
+
+      // // 降序时排序指示器添加的类
+      // ascendingClass: 'ascending',
+
+      // // 混入，补充属性、事件、方法等
+      // mixin: {
+      //   computed: {/* ... */},
+      //   methods: {/* ... */},
+      // },
+    });
+
+    // 用来生成验证器组的元数据
+    const groups = [
+      { // 定义在属性 manufacturer 上的值验证器组
+        name: 'manufacturer',
+        type: 'value',
+        prop: 'manufacturer',
+        multiple: false,
+      },
+      { // 定义在属性 category 上的值验证器组
+        name: 'category',
+        type: 'value',
+        prop: 'category',
+        multiple: true,
+      },
+      { // 定义在 'manufacturer', 'manufacture_oe' 和 'inborn_filter_oe' 三个属性上的检索验证器组
+        name: 'search',
+        type: 'search',
+        prop: ['manufacturer','manufacture_oe','inborn_filter_oe'],
+        multiple: true,
+      },
+    ];
+
+    /**
+     * 生成数据展示组件
+     */
+    const filter = DataPanel.newFilter({
+      // *必需* 目标元素
+      el: '#data_filter',
+
+      // *必需* 指定布局组件
+      layout: layout,
+
+      // *必需* 用来生成验证器组的元数据
+      groups: groups,
+
+      // // 混入，补充属性、事件、方法等
+      // mixin: {
+      //   computed: {/* ... */},
+      //   methods: {/* ... */},
+      // },
+    });
+
+    filter.init(records);
+  </script>
+</body>
+</html>
