@@ -34,6 +34,9 @@
                   <th @click.stop="sortBy('category', $event)">
                     <div class="data-layout__header-content">Category<i class="sorting-indicator"></i></div>
                   </th>
+                  <th @click.stop="sortBy('updated_at', $event)">
+                    <div class="data-layout__header-content">更新时间<i class="sorting-indicator"></i></div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -42,6 +45,7 @@
                   <td><div class="data-layout__column-content" v-html="render(record, 'manufacture_oe')"></div></td>
                   <td><div class="data-layout__column-content" v-html="render(record, 'inborn_filter_oe')"></div></td>
                   <td><div class="data-layout__column-content" v-html="render(record, 'category')"></div></td>
+                  <td><div class="data-layout__column-content" v-html="render(record, 'updated_at')"></div></td>
                 </tr>
               </tbody>
             </table>
@@ -58,15 +62,11 @@
     </div>
   </div>
 
-  <script src="../js/vendor/underscore.min.js"></script>
-  <script src="../js/vendor/jquery.min.js"></script>
-  <script src="../js/vendor/axios/dist/axios.min.js"></script>
   <script src="../js/vendor/vue/dist/vue.min.js"></script>
   <script src="../js/vendor/element/lib/index.js"></script>
-  <script src="../js/utils.js"></script>
   <script src="../js/validators.js"></script>
   <script src="../js/data-panel.js"></script>
-  <script src="../js/records.js"></script>
+  <script src="../js/data.js"></script>
   <script>
 
     /**

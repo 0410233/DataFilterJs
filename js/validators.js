@@ -1,5 +1,43 @@
 ;(function(global) {
 
+  // Object.assign PollyFill
+  if (typeof Object.assign !== 'function') {
+    // Must be writable: true, enumerable: false, configurable: true
+    Object.defineProperty(Object, "assign", {
+      value: function assign(target, varArgs) { // .length of function is 2
+        'use strict';
+        if (target === null || target === undefined) {
+          throw new TypeError('Cannot convert undefined or null to object');
+        }
+
+        var to = Object(target);
+
+        for (var index = 1; index < arguments.length; index++) {
+          var nextSource = arguments[index];
+
+          if (nextSource !== null && nextSource !== undefined) {
+            for (var nextKey in nextSource) {
+              // Avoid bugs when hasOwnProperty is shadowed
+              if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                to[nextKey] = nextSource[nextKey];
+              }
+            }
+          }
+        }
+        return to;
+      },
+      writable: true,
+      configurable: true
+    });
+  }
+
+  // classExtend
+  Function.prototype.classExtend = function classExtend(supper, methods) {
+    this.prototype = Object.assign(Object.create(supper.prototype), {
+      constructor: this,
+    }, methods || {});
+  };
+
   let validatorIndex = 1;
   let groupIndex = 1;
 
@@ -27,13 +65,14 @@
     }, {});
   }
 
-  function BaseValidator(prop) {
+  function BaseValidator(prop, label) {
     // id
     defineProp(this, 'id', {value: 'validator_' + validatorIndex++});
 
     // 属性
     defineProp(this, 'prop', {value: prop});
 
+    this.label = label || prop;
     this.active = false;
     this.total = 0;
 
@@ -127,8 +166,10 @@
 
 
   // 值验证器，由指定的属性和值自动生成验证函数
-  function ValueValidator(prop, value) {
-    BaseValidator.call(this, prop);
+  function ValueValidator(prop, value, label) {
+    BaseValidator.call(this, prop, label);
+
+    this.label = label || value;
 
     defineProp(this, 'value', {value: this.caster(value)});
 
@@ -139,8 +180,10 @@
   ValueValidator.classExtend(BaseValidator, {});
 
   // 范围验证器，由指定的属性和范围自动生成验证函数
-  function RangeValidator(prop, min, max) {
-    BaseValidator.call(this, prop);
+  function RangeValidator(prop, min, max, label) {
+    BaseValidator.call(this, prop, label);
+
+    this.label = label || prop+' '+min+' - '+max;
 
     defineProp(this, 'min', {value: this.caster(min)})
 
@@ -156,8 +199,10 @@
 
 
   // 枚举值验证器，由指定的属性和枚举值自动生成验证函数
-  function EnumValidator(prop, items) {
+  function EnumValidator(prop, items, label) {
     BaseValidator.call(this, prop);
+
+    this.label = label || items.join(',');
 
     defineProp(this, 'items', {value: items || []});
 
@@ -168,8 +213,8 @@
   EnumValidator.classExtend(BaseValidator, {});
 
   // 包含验证器，由指定的属性和枚举值自动生成验证函数
-  function ContainsValidator(prop, caseSensitive) {
-    BaseValidator.call(this, prop);
+  function ContainsValidator(prop, caseSensitive, label) {
+    BaseValidator.call(this, prop, label);
 
     defineProp(this, 'caseSensitive', {value: !!caseSensitive});
 
@@ -303,56 +348,52 @@
   };
 
   // 批量创建值验证器
-  function makeValueValidatorsGroup(meta) {
-    const group = new ValidatorGroup(meta.multiple);
+  function getValueValidators(meta) {
+    const validators = [];
     const prop = meta.prop;
     const data = Array.isArray(meta.data) ? meta.data : [];
 
     for (const key in countBy(data, prop)) {
-      group.add(new ValueValidator(prop, key))
+      validators.push(new ValueValidator(prop, key));
     }
 
-    if (data.length) {
-      group.count(data);
-    }
-
-    return group;
+    return validators;
   }
 
   // 批量创建检索验证器
-  function makeContainsValidatorsGroup(meta) {
-    const group = new ValidatorGroup(meta.multiple);
+  function getContainsValidators(meta) {
+    const validators = [];
     const props = Array.isArray(meta.prop) ? meta.prop : [meta.prop];
 
     props.forEach(function(prop) {
-      group.add(new ContainsValidator(prop));
+      validators.push(new ContainsValidator(prop));
     });
 
-    return group;
-  }
-
-  // 批量创建基础验证器
-  function makeBaseValidatorsGroup(meta) {
-    const group = new ValidatorGroup(meta.multiple);
-
-    if (Array.isArray(meta.validators)) {
-      meta.validators.forEach(function(validator) {
-        group.add(validator);
-      });
-    }
-
-    return group;
+    return validators;
   }
 
   ValidatorGroup.make = function(meta) {
+    const group = new ValidatorGroup(meta.multiple);
+
+    let validators = Array.isArray(meta.validators) ? meta.validators : [];
     switch (meta.type) {
       case 'value':
-        return makeValueValidatorsGroup(meta);
+        validators = validators.concat(getValueValidators(meta));
+        break;
       case 'search':
-        return makeContainsValidatorsGroup(meta);
-      default:
-        return makeBaseValidatorsGroup(meta);
+        validators = validators.concat(getContainsValidators(meta));
+        break;
     }
+
+    validators.forEach(function(validator) {
+      group.add(validator);
+    });
+
+    if (Array.isArray(meta.data) && meta.data.length) {
+      group.count(meta.data);
+    }
+
+    return group;
   }
 
   global.ValidatorGroup = ValidatorGroup;

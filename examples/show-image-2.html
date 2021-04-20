@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>综合：单选框 + 复选框 + 搜索 + 图片显示</title>
+  <title>图片展示 2</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -12,27 +12,12 @@
     <div class="stage">
       <div class="data-panel">
         <div class="data-filter" id="data_filter">
-          <div class="data-filter__group" id="test">
+          <div class="data-filter__group">
             <p><b>Manufacturer:</b></p>
-            <div class="data-filter__validator">
-              <input type="radio" v-model="values.manufacturer" value="" id="any" @change="handleValidatorChange('manufacturer')">
-              <label for="any">(any)</label>
-            </div>
-            <div class="data-filter__validator" v-for="v in groups.manufacturer.all()">
-              <input type="radio" v-model="values.manufacturer" :value="v.id" :id="v.id" @change="handleValidatorChange('manufacturer')">
-              <label :for="v.id">{{ v.value }} ({{ v.total }})</label>
-            </div>
-          </div>
-          <div class="data-filter__group">
-            <p><b>Category:</b></p>
-            <div class="data-filter__validator" v-for="v in groups.category.all()">
-              <input type="checkbox" v-model="values.category" :value="v.id" :id="v.id" @change="handleValidatorChange('category')">
-              <label :for="v.id">{{ v.value }} ({{ v.total }})</label>
-            </div>
-          </div>
-          <div class="data-filter__group">
-            <p><b>Search:</b></p>
-            <input type="text" placeholder="Search..." v-model="values.search" @input="handleFilterChange">
+            <select class="filter-item" v-model="values.manufacturer" @change="handleValidatorChange('manufacturer')">
+              <option value="">-Select-</option>
+              <option v-for="v in groups.manufacturer.all()" :key="v.id" :value="v.id">{{ v.value }} ({{ v.total }})</option>
+            </select>
           </div>
         </div>
         <div class="data-layout data-layout--table" id="data_layout">
@@ -101,24 +86,6 @@
     const layout = DataPanel.newLayout({
       // *必需* 目标元素
       el: '#data_layout',
-
-      // // 初始化时，数据默认按那一列排序
-      // initialSortBy: 'manufacturer',
-
-      // // 排序图标的选择器
-      // sortingIndicatorSelector: '.sorting-indicator',
-
-      // // 升序时排序指示器添加的类
-      // descendingClass: 'descending',
-
-      // // 降序时排序指示器添加的类
-      // ascendingClass: 'ascending',
-
-      // // 混入，补充属性、事件、方法等
-      // mixin: {
-      //   computed: {/* ... */},
-      //   methods: {/* ... */},
-      // },
     });
 
     // 用来生成验证器组的元数据
@@ -128,18 +95,6 @@
         type: 'value',
         prop: 'manufacturer',
         multiple: false,
-      },
-      { // 定义在属性 category 上的值验证器组
-        name: 'category',
-        type: 'value',
-        prop: 'category',
-        multiple: true,
-      },
-      { // 定义在 'manufacturer', 'manufacture_oe' 和 'inborn_filter_oe' 三个属性上的检索验证器组
-        name: 'search',
-        type: 'search',
-        prop: ['manufacturer','manufacture_oe','inborn_filter_oe'],
-        multiple: true,
       },
     ];
 
@@ -155,12 +110,6 @@
 
       // *必需* 用来生成验证器组的元数据
       groups: groups,
-
-      // // 混入，补充属性、事件、方法等
-      // mixin: {
-      //   computed: {/* ... */},
-      //   methods: {/* ... */},
-      // },
     });
 
     filter.init(records);

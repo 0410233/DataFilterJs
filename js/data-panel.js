@@ -1,4 +1,25 @@
 ;(function(global) {
+
+  function sortBy(arr, prop) {
+    return arr.map(function(value, index) {
+      return {
+        value: value,
+        index: index,
+        criteria: value[prop],
+      };
+    }).sort(function(left, right) {
+      const a = left.criteria;
+      const b = right.criteria;
+      if (a !== b) {
+        if (a > b || a === void 0) return 1;
+        if (a < b || b === void 0) return -1;
+      }
+      return left.index - right.index;
+    }).map(function(item) {
+      return item.value;
+    });
+  }
+
   // 初始化布局组件
   function newLayout(options) {
     // 目标元素
@@ -8,7 +29,7 @@
     }
 
     // 初始化时，数据默认按那一列排序
-    const initialSortBy = options.initialSortBy;
+    const initialOrder = options.initialOrder;
 
     // 排序指示器（图标）的选择器
     const sortingIndicatorSelector = options.sortingIndicatorSelector || '.sorting-indicator';
@@ -52,12 +73,12 @@
         // 初始化
         init: function(records) {
           this.resetSorting();
-          if (initialSortBy) {
-            records = _.sortBy(records, initialSortBy);
+          if (initialOrder) {
+            records = sortBy(records, initialOrder);
           }
           this.$set(this.$data, 'records', records.slice());
           this.pagination.currentPage = 1;
-          this.sort.original = records.slice();
+          this.sorting.original = records.slice();
         },
 
         render: function(record, prop) {
@@ -85,7 +106,7 @@
           // 如果未排序，则升序
           if (! sorting[column]) {
             sorting[column] = 'asc';
-            this.$set(this.$data, 'records', _.sortBy(this.records, column));
+            this.$set(this.$data, 'records', sortBy(this.records, column));
             indicatorClass.remove(descendingClass);
             indicatorClass.add(ascendingClass);
           }
@@ -191,7 +212,7 @@
 
           this.initGroups();
 
-          this.$emit('after-filter', records);
+          this.$emit('after-filter', data.slice());
 
           return this;
         },

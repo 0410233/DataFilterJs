@@ -124,27 +124,35 @@ body {
 .data-layout--table tbody tr:nth-child(even) td {
   background-color: #f2f2f2;
 }
-.data-layout--table th .sort-indicator {
+.data-layout--table th .sorting-indicator {
   display: flex;
   flex-direction: column;
   margin-left: 7px;
   justify-content: center;
 }
-.data-layout--table th .sort-indicator::after, .data-layout--table th .sort-indicator::before {
+.data-layout--table th .sorting-indicator::after, .data-layout--table th .sorting-indicator::before {
   content: "";
   display: block;
   margin: 1px 0;
   border-style: solid;
   border-color: #c0c4cc transparent;
 }
-.data-layout--table th .sort-indicator::before {
+.data-layout--table th .sorting-indicator::before {
   border-width: 0 5px 6px;
 }
-.data-layout--table th .sort-indicator::after {
+.data-layout--table th .sorting-indicator::after {
   border-width: 6px 5px 0;
 }
+.data-layout--table th .sorting-indicator.ascending::before {
+  border-bottom-color: #0181c6;
+}
+.data-layout--table th .sorting-indicator.descending::after {
+  border-top-color: #0181c6;
+}
+
 .data-layout__header-content {
   display: flex;
+  justify-content: center;
   cursor: pointer;
 }
 
