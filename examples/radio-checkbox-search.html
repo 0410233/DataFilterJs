@@ -34,6 +34,10 @@
             <p><b>Search:</b></p>
             <input type="text" placeholder="Search..." v-model="values.search" @input="handleFilterChange">
           </div>
+
+          <div class="data-filter__group">
+            <button @click.stop="reset">Reset</button>
+          </div>
         </div>
         <div class="data-layout data-layout--table" id="data_layout">
           <div class="table-wrapper">

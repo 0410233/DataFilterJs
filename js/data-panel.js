@@ -268,6 +268,7 @@
           });
 
           this.$set(this.$data, 'values', values);
+          this.$emit('after-filter', this.records.slice());
 
           return this;
         },
