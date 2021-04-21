@@ -22,55 +22,68 @@ body {
   padding: 0 20px;
 }
 
-.el-pagination{white-space:nowrap;padding:2px 0;color:#303133;font-weight:700;margin-top:20px}
-.el-pagination::after,.el-pagination::before{display:table;content:""}
-.el-pagination::after{clear:both}
-.el-pagination button,.el-pagination span:not([class*=suffix]){display:inline-block;font-size:13px;min-width:35.5px;height:28px;line-height:28px;vertical-align:top;-webkit-box-sizing:border-box;box-sizing:border-box}
-.el-pagination .el-input__inner{text-align:center;-moz-appearance:textfield;line-height:normal}
-.el-pagination .el-input__suffix{right:0;-webkit-transform:scale(.8);transform:scale(.8)}
-.el-pagination .el-select .el-input{width:100px;margin:0 5px}
-.el-pagination .el-select .el-input .el-input__inner{padding-right:25px;border-radius:3px}
-.el-pagination button{border:none;padding:0 6px;background:0 0}
-.el-pagination button:focus{outline:0}
-.el-pagination button:hover{color:#409eff}
-.el-pagination button:disabled{color:#c0c4cc;background-color:#fff;cursor:not-allowed}
-.el-pagination .btn-next,.el-pagination .btn-prev{background:center center no-repeat #fff;background-size:16px;cursor:pointer;margin:0;color:#303133}
-.el-pagination .btn-next .el-icon,.el-pagination .btn-prev .el-icon{display:block;font-size:12px;font-weight:700}
-.el-pagination .btn-prev{padding-right:12px}
-.el-pagination .btn-next{padding-left:12px}
-.el-pagination .el-pager li.disabled{color:#c0c4cc;cursor:not-allowed}
-.el-pager li,.el-pager li.btn-quicknext:hover,.el-pager li.btn-quickprev:hover{cursor:pointer}
-.el-pagination--small .btn-next,.el-pagination--small .btn-prev,.el-pagination--small .el-pager li,.el-pagination--small .el-pager li.btn-quicknext,.el-pagination--small .el-pager li.btn-quickprev,.el-pagination--small .el-pager li:last-child{border-color:transparent;font-size:12px;line-height:22px;height:22px;min-width:22px}
-.el-pagination--small .arrow.disabled{visibility:hidden}
-.el-pagination--small .more::before,.el-pagination--small li.more::before{line-height:24px}
-.el-pagination--small button,.el-pagination--small span:not([class*=suffix]){height:22px;line-height:22px}
-.el-pagination--small .el-pagination__editor,.el-pagination--small .el-pagination__editor.el-input .el-input__inner{height:22px}
-.el-pagination__sizes{margin:0 10px 0 0;font-weight:400;color:#606266}
-.el-pagination__sizes .el-input .el-input__inner{font-size:13px;padding-left:8px}
-.el-pagination__sizes .el-input .el-input__inner:hover{border-color:#409eff}
-.el-pagination__total{margin-right:10px;font-weight:400;color:#606266}
-.el-pagination__jump{margin-left:24px;font-weight:400;color:#606266}
-.el-pagination__jump .el-input__inner{padding:0 3px}
-.el-pagination__rightwrapper{float:right}
-.el-pagination__editor{line-height:18px;padding:0 2px;height:28px;text-align:center;margin:0 2px;-webkit-box-sizing:border-box;box-sizing:border-box;border-radius:3px}
-.el-pager,.el-pagination.is-background .btn-next,.el-pagination.is-background .btn-prev{padding:0}
-.el-pagination__editor.el-input{width:50px}
-.el-pagination__editor.el-input .el-input__inner{height:28px}
-.el-pagination__editor .el-input__inner::-webkit-inner-spin-button,.el-pagination__editor .el-input__inner::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-.el-pagination.is-background .btn-next,.el-pagination.is-background .btn-prev,.el-pagination.is-background .el-pager li{margin:0 5px;background-color:#f4f4f5;color:#606266;min-width:30px;border-radius:2px}
-.el-pagination.is-background .btn-next.disabled,.el-pagination.is-background .btn-next:disabled,.el-pagination.is-background .btn-prev.disabled,.el-pagination.is-background .btn-prev:disabled,.el-pagination.is-background .el-pager li.disabled{color:#c0c4cc}
-.el-pagination.is-background .el-pager li:not(.disabled):hover{color:#409eff}
-.el-pagination.is-background .el-pager li:not(.disabled).active{background-color:#409eff;color:#fff}
-.el-pagination.is-background.el-pagination--small .btn-next,.el-pagination.is-background.el-pagination--small .btn-prev,.el-pagination.is-background.el-pagination--small .el-pager li{margin:0 3px;min-width:22px}
-.el-pager,.el-pager li{vertical-align:top;display:inline-block;margin:0}
-.el-pager{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;list-style:none;font-size:0}
-.el-pager .more::before{line-height:30px}
-.el-pager li{padding:0 4px;background:#fff;font-size:13px;min-width:35.5px;height:28px;line-height:28px;-webkit-box-sizing:border-box;box-sizing:border-box;text-align:center}
-.el-pager li.btn-quicknext,.el-pager li.btn-quickprev{line-height:28px;color:#303133}
-.el-pager li.btn-quicknext.disabled,.el-pager li.btn-quickprev.disabled{color:#c0c4cc}
-.el-pager li.active+li{border-left:0}
-.el-pager li:hover{color:#409eff}
-.el-pager li.active{color:#409eff;cursor:default}
+.c-pagination {
+  display: flex;
+  align-items: center;
+  margin: 20px auto;
+  font-size: 14px;
+}
+
+.c-pagination__prev, .c-pagination__next, .c-pagination__pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 30px;
+  height: 28px;
+  line-height: 28px;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f5;
+  color: #606266;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 2px;
+  text-align: center;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.c-pagination__pagers {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+}
+
+.c-pagination__pager.is-active {
+  background-color: orangered;
+  border-color: orangered;
+  color: #fff;
+  background-color: #409eff;
+    color: #fff;
+}
+
+.c-pagination__icon {
+  width: 20px;
+  height: 20px;
+  color: #606266;
+  fill: #606266;
+}
+
+.c-pagination__pager > .c-pagination__icon {
+  width: 14px;
+  height: 14px;
+}
+
+.c-pagination__prev[disabled], .c-pagination__next[disabled] {
+  cursor: not-allowed;
+  color: #c0c4cc;
+}
+
+[disabled]>.c-pagination__icon {
+  fill: #c0c4cc;
+}
 
 .image{display:inline-flex;align-items:center;justify-content:center;padding:0;overflow:hidden}
 .image img{max-height:100%;max-width:100%}

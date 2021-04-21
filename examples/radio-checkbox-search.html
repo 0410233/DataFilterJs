@@ -76,20 +76,18 @@
               </tbody>
             </table>
           </div>
-          <el-pagination
-            background
-            layout="prev, pager, next"
+          <c-pagination
             :total="records.length"
-            :page-size="pagination.perPage"
-            @current-change="handleCurrentPageChange">
-          </el-pagination>
+            :per-page="pagination.perPage"
+            @page-change="handleCurrentPageChange">
+          </c-pagination>
         </div>
       </div>
     </div>
   </div>
 
   <script src="../js/vendor/vue/dist/vue.min.js"></script>
-  <script src="../js/vendor/element/lib/index.js"></script>
+  <script src="../js/c-pagination.js"></script>
   <script src="../js/validators.js"></script>
   <script src="../js/data-panel.js"></script>
   <script src="../js/data.js"></script>
@@ -119,6 +117,8 @@
       //   computed: {/* ... */},
       //   methods: {/* ... */},
       // },
+
+      // render: {}
     });
 
     // 用来生成验证器组的元数据
@@ -153,7 +153,7 @@
       // *必需* 指定布局组件
       layout: layout,
 
-      // *必需* 用来生成验证器组的元数据
+      // *必需* 用来生成筛选器组的元数据
       groups: groups,
 
       // // 混入，补充属性、事件、方法等

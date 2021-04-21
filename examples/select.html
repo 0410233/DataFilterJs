@@ -53,20 +53,18 @@
               </tbody>
             </table>
           </div>
-          <el-pagination
-            background
-            layout="prev, pager, next"
+          <c-pagination
             :total="records.length"
-            :page-size="pagination.perPage"
-            @current-change="handleCurrentPageChange">
-          </el-pagination>
+            :per-page="pagination.perPage"
+            @page-change="handleCurrentPageChange">
+          </c-pagination>
         </div>
       </div>
     </div>
   </div>
 
   <script src="../js/vendor/vue/dist/vue.min.js"></script>
-  <script src="../js/vendor/element/lib/index.js"></script>
+  <script src="../js/c-pagination.js"></script>
   <script src="../js/validators.js"></script>
   <script src="../js/data-panel.js"></script>
   <script src="../js/data.js"></script>
