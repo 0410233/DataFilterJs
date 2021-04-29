@@ -10,73 +10,53 @@
 <body>
   <div class="region">
     <div class="stage">
-      <div class="data-panel">
-        <div class="data-filter" id="data_filter">
-          <div class="data-filter__group">
-            <p><b>Manufacturer:</b></p>
-            <select class="filter-item" v-model="values.manufacturer" @change="handleValidatorChange('manufacturer')">
-              <option value="">-Select-</option>
-              <option v-for="v in groups.manufacturer.all()" :key="v.id" :value="v.id">{{ v.value }} ({{ v.total }})</option>
-            </select>
+      <div class="data-panel" id="data_panel">
+        <data-filter :groups-meta="groups" :records="records" @after-filter="filteredRecords = $event" v-slot="slot" ref="filter">
+          <div class="data-filter">
+            <div class="data-filter__group">
+              <p><b>Manufacturer:</b></p>
+              <select class="filter-item" v-model="slot.values.manufacturer" @change="handleValidatorChange('manufacturer')">
+                <option value="">-Select-</option>
+                <option v-for="v in slot.groups.manufacturer.all()" :key="v.id" :value="v.id">{{ v.value }} ({{ v.total }})</option>
+              </select>
+            </div>
           </div>
-        </div>
-        <div class="data-layout data-layout--table" id="data_layout">
+        </data-filter>
+        <div class="data-layout data-layout--table">
           <div class="table-wrapper">
             <table class="jc-table">
               <thead>
                 <tr>
-                  <th @click.stop="sortBy('manufacturer', $event)">
-                    <div class="data-layout__header-content">Manufacturer<i class="sorting-indicator"></i></div>
-                  </th>
-                  <th @click.stop="sortBy('manufacture_oe', $event)">
-                    <div class="data-layout__header-content">Manufacturer #<i class="sorting-indicator"></i></div>
-                  </th>
-                  <th @click.stop="sortBy('inborn_filter_oe', $event)">
-                    <div class="data-layout__header-content">Inborn Filter #<i class="sorting-indicator"></i></div>
-                  </th>
-                  <th @click.stop="sortBy('category', $event)">
-                    <div class="data-layout__header-content">Category<i class="sorting-indicator"></i></div>
-                  </th>
-                  <th @click.stop="sortBy('updated_at', $event)">
-                    <div class="data-layout__header-content">更新时间<i class="sorting-indicator"></i></div>
-                  </th>
+                  <th>Manufacturer</th>
+                  <th>Manufacturer #</th>
+                  <th>Inborn Filter #</th>
+                  <th>Category</th>
+                  <th>更新时间</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="record in currentPageRecords">
-                  <td><div class="data-layout__column-content" v-html="render(record, 'manufacturer')"></div></td>
-                  <td><div class="data-layout__column-content" v-html="render(record, 'manufacture_oe')"></div></td>
-                  <td><div class="data-layout__column-content" v-html="render(record, 'inborn_filter_oe')"></div></td>
-                  <td><div class="data-layout__column-content" v-html="render(record, 'category')"></div></td>
-                  <td><div class="data-layout__column-content" v-html="render(record, 'updated_at')"></div></td>
+                <tr v-for="record in filteredRecords">
+                  <td>{{ record.manufacturer }}</td>
+                  <td>{{ record.manufacture_oe }}</td>
+                  <td>{{ record.inborn_filter_oe }}</td>
+                  <td>{{ record.category }}</td>
+                  <td>{{ record.updated_at }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <c-pagination
-            :total="records.length"
-            :per-page="pagination.perPage"
-            @page-change="handleCurrentPageChange">
-          </c-pagination>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="../js/vendor/vue/dist/vue.min.js"></script>
+  <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="../node_modules/vue/dist/vue.min.js"></script>
   <script src="../js/c-pagination.js"></script>
   <script src="../js/validators.js"></script>
-  <script src="../js/data-panel.js"></script>
+  <script src="../js/data-filter.js"></script>
   <script src="../js/data.js"></script>
   <script>
-
-    /**
-     * 生成数据展示组件
-     */
-    const layout = DataPanel.newLayout({
-      // *必需* 目标元素
-      el: '#data_layout',
-    });
 
     // 用来生成验证器组的元数据
     const groups = [
@@ -88,21 +68,35 @@
       },
     ];
 
-    /**
-     * 生成数据展示组件
-     */
-    const filter = DataPanel.newFilter({
-      // *必需* 目标元素
-      el: '#data_filter',
+    var dataPanel = new Vue({
+      el: '#data_panel',
 
-      // *必需* 指定布局组件
-      layout: layout,
+      data: function() {
+        return {
+          records: [],
+          filteredRecords: [],
+          groups: groups,
+        };
+      },
 
-      // *必需* 用来生成验证器组的元数据
-      groups: groups,
+      methods: {
+        init: function(records) {
+          this.records = records.slice();
+          this.filteredRecords = records.slice();
+        },
+
+        // 使用 data-filter 组件
+        handleValidatorChange: function(prop) {
+          this.$refs.filter.handleValidatorChange(prop);
+        },
+
+        handleFilterChange: function() {
+          this.$refs.filter.handleFilterChange();
+        },
+      },
     });
 
-    filter.init(records);
+    dataPanel.init(records);
   </script>
 </body>
 </html>

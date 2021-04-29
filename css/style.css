@@ -115,10 +115,18 @@ body {
 }
 
 .data-layout--table {
-  flex: 1;
+  /* flex: 1; */
+  width: calc(100% - 300px);
 }
-.data-layout--table table {
+
+.table-wrapper {
   width: 100%;
+  max-width: 100%;
+  min-width: auto;
+  overflow-x: auto;
+}
+
+.data-layout--table table {
   font-size: 14px;
   border-collapse: collapse;
 }

@@ -49,7 +49,7 @@ Vue.component('c-pagination', {
 
   data: function() {
     return {
-      currentPage: 1, // 当前页
+      currentPage: 1,
       showQuickprev: false,
       showQuicknext: false,
     };
@@ -63,15 +63,15 @@ Vue.component('c-pagination', {
 
     // 动态页码
     dynamicPagers: function() {
-      const left = 1;
-      const right = this.pageCount;
-      const length = this.pagerCount - 2;
+      var left = 1;
+      var right = this.pageCount;
+      var length = this.pagerCount - 2;
 
       // 最左侧动态页码
-      let start = this.currentPage - (length - 1)/2;
+      var start = this.currentPage - (length - 1)/2;
 
       // 最右侧动态页码
-      let end = this.currentPage + (length - 1)/2;
+      var end = this.currentPage + (length - 1)/2;
 
       if (start <= left) {
         start = left+1;
@@ -83,8 +83,8 @@ Vue.component('c-pagination', {
         start = right-length;
       }
 
-      const pagers = [];
-      for (let i = start; i <= end; i++) {
+      var pagers = [];
+      for (var i = start; i <= end; i++) {
         if (i > left && i < right) {
           pagers.push(i);
         }
@@ -102,7 +102,11 @@ Vue.component('c-pagination', {
     changePage: function(page) {
       this.currentPage = Math.min(Math.max(page, 1), this.pageCount);
 
-      this.$emit('page-change', this.currentPage);
+      this.$emit('current-change', this.currentPage);
+    },
+
+    reset: function() {
+      this.changePage(1);
     },
 
     // 上一页

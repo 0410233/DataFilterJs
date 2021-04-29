@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>复选框</title>
+  <title>自定义范围：日期</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -14,10 +14,10 @@
         <data-filter :groups-meta="groups" :records="records" @after-filter="filteredRecords = $event" v-slot="slot" ref="filter">
           <div class="data-filter">
             <div class="data-filter__group">
-              <p><b>Category:</b></p>
-              <div class="data-filter__validator" v-for="v in slot.groups.category.all()">
-                <input type="checkbox" v-model="slot.values.category" :value="v.id" :id="v.id" @change="handleValidatorChange('category')">
-                <label :for="v.id">{{ v.value }} ({{ v.total }})</label>
+              <p><b>选择日期范围:</b></p>
+              <div class="data-filter__validator" v-for="v in slot.groups.date_range.all()">
+                <input type="radio" v-model="slot.values.date_range" :value="v.id" :id="v.id" @change="handleValidatorChange('date_range')">
+                <label :for="v.id">{{ v.label }} ({{ v.total }})</label>
               </div>
             </div>
           </div>
@@ -50,6 +50,7 @@
     </div>
   </div>
 
+  <script src="../node_modules/moment/dist/moment.js"></script>
   <script src="../node_modules/jquery/dist/jquery.min.js"></script>
   <script src="../node_modules/vue/dist/vue.min.js"></script>
   <script src="../js/c-pagination.js"></script>
@@ -58,13 +59,28 @@
   <script src="../js/data.js"></script>
   <script>
 
+    function getTime(time) {
+      return time*1000;
+    }
+
+    const now = Date.now();
+
     // 用来生成验证器组的元数据
     const groups = [
-      { // 定义在属性 category 上的值验证器组
-        name: 'category',
-        type: 'value',
-        prop: 'category',
-        multiple: true,
+      { // 定义在属性 manufacturer 上的值验证器组
+        name: 'date_range',
+        type: 'range',
+        prop: 'id',
+        multiple: false,
+        validators: [
+          // (new BaseValidator('updated_at', '[any]')).setValidator(function() {return true}),
+          (new RangeValidator('updated_at', 0, now, '[any]')).setCaster(getTime),
+          (new RangeValidator('updated_at', moment().startOf('day').valueOf(), now, '今天')).setCaster(getTime),
+          (new RangeValidator('updated_at', moment().startOf('week').valueOf(), now, '本周')).setCaster(getTime),
+          (new RangeValidator('updated_at', moment().startOf('month').valueOf(), now, '本月')).setCaster(getTime),
+          (new RangeValidator('updated_at', moment().startOf('year').valueOf(), now, '今年')).setCaster(getTime),
+          (new RangeValidator('updated_at', moment().subtract(45, 'days').valueOf(), now, '最近 45 天')).setCaster(getTime),
+        ],
       },
     ];
 

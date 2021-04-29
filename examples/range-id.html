@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>复选框</title>
+  <title>自定义范围：id</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -14,10 +14,10 @@
         <data-filter :groups-meta="groups" :records="records" @after-filter="filteredRecords = $event" v-slot="slot" ref="filter">
           <div class="data-filter">
             <div class="data-filter__group">
-              <p><b>Category:</b></p>
-              <div class="data-filter__validator" v-for="v in slot.groups.category.all()">
-                <input type="checkbox" v-model="slot.values.category" :value="v.id" :id="v.id" @change="handleValidatorChange('category')">
-                <label :for="v.id">{{ v.value }} ({{ v.total }})</label>
+              <p><b>选择 id 范围:</b></p>
+              <div class="data-filter__validator" v-for="v in slot.groups.id_range.all()">
+                <input type="checkbox" v-model="slot.values.id_range" :value="v.id" :id="v.id" @change="handleValidatorChange('id_range')">
+                <label :for="v.id">{{ v.label }} ({{ v.total }})</label>
               </div>
             </div>
           </div>
@@ -60,11 +60,16 @@
 
     // 用来生成验证器组的元数据
     const groups = [
-      { // 定义在属性 category 上的值验证器组
-        name: 'category',
-        type: 'value',
-        prop: 'category',
+      { // 定义在属性 manufacturer 上的值验证器组
+        name: 'id_range',
+        type: 'range',
+        prop: 'id',
         multiple: true,
+        validators: [
+          new RangeValidator('id', 0, 10, 'id 0 - 10'),
+          new RangeValidator('id', 11, 20, 'id 11 - 20'),
+          new RangeValidator('id', 21, 30, 'id 21 - 30'),
+        ],
       },
     ];
 

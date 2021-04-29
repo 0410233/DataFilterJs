@@ -12,7 +12,7 @@
     <div class="stage">
       <div class="data-panel" id="data_panel">
         <data-filter :groups-meta="groups" :records="records" @after-filter="filteredRecords = $event" v-slot="slot" ref="filter">
-          <div class="data-filter">
+          <div class="data-filter" style="min-width: 300px;">
             <div class="data-filter__group">
               <p><b>Category:</b></p>
               <div class="data-filter__validator" v-for="v in slot.groups.category.all()">
@@ -35,7 +35,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="record in filteredRecords">
+                <tr v-for="record in currentPageRecords">
                   <td>{{ record.manufacturer }}</td>
                   <td>{{ record.manufacture_oe }}</td>
                   <td>{{ record.inborn_filter_oe }}</td>
@@ -45,6 +45,13 @@
               </tbody>
             </table>
           </div>
+
+          <c-pagination
+            ref="pagination"
+            :total="filteredRecords.length"
+            :per-page="perPage"
+            @current-change="currentPage = $event">
+          </c-pagination>
         </div>
       </div>
     </div>
@@ -73,10 +80,25 @@
 
       data: function() {
         return {
-          records: [],
-          filteredRecords: [],
+          records: records.slice(),
+          filteredRecords: records.slice(),
           groups: groups,
+          perPage: 15,
+          currentPage: 1,
         };
+      },
+
+      watch: {
+        filteredRecords: function() {
+          this.currentPage = 1;
+          this.$refs.pagination.reset();
+        },
+      },
+
+      computed: {
+        currentPageRecords: function() {
+          return this.filteredRecords.slice((this.currentPage-1)*this.perPage, this.currentPage*this.perPage);
+        },
       },
 
       methods: {
@@ -89,14 +111,9 @@
         handleValidatorChange: function(prop) {
           this.$refs.filter.handleValidatorChange(prop);
         },
-
-        handleFilterChange: function() {
-          this.$refs.filter.handleFilterChange();
-        },
       },
     });
 
-    dataPanel.init(records);
   </script>
 </body>
 </html>
